@@ -10,7 +10,7 @@ Same guided TUI. Same automation philosophy. All four Artix init systems.
 
 ```bash
 pacman -Sy python git --noconfirm
-git clone https://github.com/your-org/artixinstall
+git clone https://github.com/Itzkristis/artixinstall
 cd artixinstall
 pip install archinstall --break-system-packages
 python -m artixinstall
