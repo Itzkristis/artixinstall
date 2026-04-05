@@ -71,6 +71,8 @@ python -m pytest tests/ -v
 
 ## Project status
 
-MVP — implementation complete, live ISO integration test pending.
+implementation complete, live ISO integration test pending.
 See [DESIGN.md](DESIGN.md) for the full architecture document, phase plan,
 service mapping table, package mapping table, and risk register.
+
+please no hate i vibecoded ts
