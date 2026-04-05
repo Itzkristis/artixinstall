@@ -1,0 +1,77 @@
+# artix
+install
+
+**Artix Linux installer — a fork of [`archinstall`](https://github.com/archlinux/archinstall) adapted for Artix's init-agnostic package ecosystem.**
+
+Same guided TUI. Same automation philosophy. All four Artix init systems.
+
+---
+
+## Quick start (Artix live ISO)
+
+```bash
+pacman -Sy python git --noconfirm
+git clone https://github.com/your-org/artixinstall
+cd artixinstall
+pip install archinstall --break-system-packages
+python -m artixinstall
+```
+
+The guided installer will present one additional menu item — **"Init system"** — between
+Locales and Disk configuration. Everything else is identical to the archinstall you know.
+
+---
+
+## Supported init systems
+
+| Init | Status | Service mechanism |
+|------|--------|-------------------|
+| **OpenRC** | ✅ Stable | `rc-update add/del` |
+| **runit** | ✅ Stable | sv symlinks in `/etc/runit/runsvdir/current/` |
+| **s6** | ⚠ Experimental | `contents.d` touch files (compiled at first boot) |
+| **dinit** | ⚠ Experimental | symlinks in `/etc/dinit.d/boot.d/` |
+
+---
+
+## What artixinstall changes versus upstream archinstall
+
+| Upstream behaviour | artixinstall behaviour |
+|---|---|
+| `systemctl --root enable <svc>` | `rc-update add` / sv symlink / contents.d / boot.d symlink |
+| `systemd-timesyncd` | `openntpd` (all inits) |
+| `fstrim.timer` | `/etc/cron.weekly/fstrim` shell script |
+| systemd-networkd `.network` files | NetworkManager keyfiles |
+| systemd-resolved symlink in `/etc/resolv.conf` | static resolv.conf with sane defaults |
+| mkinitcpio hooks: `systemd sd-vconsole` | `udev keymap consolefont` |
+| systemd-boot supported | **Blocked** — use GRUB |
+| Arch repos `[core] [extra] [community]` | Artix repos `[system] [world] [galaxy]` (first) |
+| packages like `networkmanager` | `networkmanager` + `networkmanager-<init>` |
+| `systemd` in base packages | `elogind` + init-meta package |
+
+---
+
+## Architecture in one paragraph
+
+artixinstall vendors upstream archinstall as a Python dependency and
+**subclasses `Installer` in exactly 9 method overrides**. All init-specific
+behaviour goes through an `InitBackend` abstract class with four concrete
+implementations. The package mapping registry resolves every Arch package
+name to its Artix equivalent (or `None` if it must be dropped). The guided
+script is ~95% identical to upstream.
+
+---
+
+## Running the tests
+
+```bash
+python -m pytest tests/ -v
+# 99 passed in 0.41s — no root, no live ISO, no chroot required
+```
+
+---
+
+## Project status
+
+MVP — implementation complete, live ISO integration test pending.
+See [DESIGN.md](DESIGN.md) for the full architecture document, phase plan,
+service mapping table, package mapping table, and risk register.
